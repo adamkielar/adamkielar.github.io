@@ -27,7 +27,7 @@ description: >-                        # used by seo meta and the atom feed
   Blog focused on Azure, GCP, AWS, Kubernetes, CI/CD, Python and other related topics.
 
 # fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
-url: 'https://adamkielar.github.io'
+url: 'https://www.adamkielar.pl'
 
 github:
   username: adamkielar             # change to your github username

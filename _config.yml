@@ -120,9 +120,6 @@ pwa:
 
 paginate: 10
 
-plugins:
-  - jekyll-gist
-
 # ------------ The following options are not recommended to be modified ------------------
 
 kramdown:

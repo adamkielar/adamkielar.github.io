@@ -39,18 +39,24 @@ az appservice plan create --name misqlplan --resource-group mi-sql-rg --is-linux
 
 ### App Service using system-assigned managed identity
 
+We need to setup random App Service and SQL Server name to avoid errors while provisioning resources.
+```bash
+appservice="misqlapp$RANDOM"
+sqlserver="misqlserver$RANDOM"
+``` 
+
 We will use a custom image to test our connection.
 ```bash
 az webapp create \
 --resource-group mi-sql-rg \
 --plan misqlplan \
---name mi-sql-app \
+--name $appservice \
 --deployment-container-image-name adamkielar/mi-sql:v1.0.0
 ```
 
 ### Assign system-assigned managed identity to the App service
 ``` bash
-az webapp identity assign --resource-group mi-sql-rg --name mi-sql-app
+az webapp identity assign --resource-group mi-sql-rg --name $appservice
 ```
 
 ### AAD group with access to the SQL server
@@ -60,7 +66,7 @@ az ad group create --display-name MISQLADMINS --mail-nickname MISQLADMINS
 
 ### Add managed identity to just created AAD group
 ```bash
-principalId=$(az webapp identity show --resource-group mi-sql-rg --name mi-sql-app --query principalId --output tsv)
+principalId=$(az webapp identity show --resource-group mi-sql-rg --name $appservice --query principalId --output tsv)
 groupId=$(az ad group show --group MISQLADMINS --query id --output tsv)
 az ad group member add --group $groupId --member-id $principalId
 ```
@@ -73,14 +79,14 @@ az sql server create \
 --external-admin-name MISQLADMINS \
 --external-admin-sid $groupId \
 --resource-group mi-sql-rg \
---name misqlserver
+--name $sqlserver
 ```
 
 ### SQL database
 ```bash
 az sql db create \
 --name misqldb \
---server misqlserver \
+--server $sqlserver \
 --resource-group mi-sql-rg \
 --edition GeneralPurpose \
 --family Gen5 \
@@ -91,7 +97,7 @@ az sql db create \
 ```bash
 az sql server firewall-rule create \
 --resource-group mi-sql-rg \
---server misqlserver \
+--server $sqlserver \
 --name misqldb \
 --start-ip-address 0.0.0.0 \
 --end-ip-address 0.0.0.0
@@ -101,13 +107,13 @@ az sql server firewall-rule create \
 ```bash
 az webapp config appsettings set \
 --resource-group mi-sql-rg \
---name mi-sql-app \
---settings DATABASE=misqldb DBSERVER=misqlserver.database.windows.net IDENTITY=system WEBSITES_PORT=8000
+--name $appservice \
+--settings DATABASE=misqldb DBSERVER=$sqlserver.database.windows.net IDENTITY=system WEBSITES_PORT=8000
 ```
 
 ### Test connection:
 ```bash
-curl https://mi-sql-app.azurewebsites.net/api/mssql_db
+curl https://$appservice.azurewebsites.net/api/mssql_db
 ```
 
 As a response, we receive a database version.
@@ -118,25 +124,25 @@ As a response, we receive a database version.
 In the application, we are using Python SQL driver - [pyodbc](https://github.com/mkleehammer/pyodbc).
 When we are using system-assign identity, the database connection string looks as follows:
 ```bash
-DRIVER={ODBC Driver 18 for SQL Server};SERVER=misqlserver.database.windows.net,1433;DATABASE=misqldb;Authentication=ActiveDirectoryMSI
+DRIVER={ODBC Driver 18 for SQL Server};SERVER=$sqlserver.database.windows.net,1433;DATABASE=misqldb;Authentication=ActiveDirectoryMSI
 ```
 
 ### Delete the App service and recreate it with a user-assigned identity
 ```bash
-az webapp delete --name mi-sql-app --resource-group mi-sql-rg
+az webapp delete --name $appservice --resource-group mi-sql-rg
 
 az appservice plan create --name misqlplan --resource-group mi-sql-rg --is-linux --sku B1
 
 az webapp create \
 --resource-group mi-sql-rg \
 --plan misqlplan \
---name mi-sql-app \
+--name $appservice \
 --deployment-container-image-name adamkielar/mi-sql:v1.0.0
 
 az webapp config appsettings set \
 --resource-group mi-sql-rg \
---name mi-sql-app \
---settings DATABASE=misqldb DBSERVER=misqlserver.database.windows.net IDENTITY=user WEBSITES_PORT=8000
+--name $appservice \
+--settings DATABASE=misqldb DBSERVER=$sqlserver.database.windows.net IDENTITY=user WEBSITES_PORT=8000
 ```
 
 ### Create identity
@@ -156,7 +162,7 @@ We need a fully qualified resource Id of identity
 ``` bash
 principalId=$(az identity show --name mi-sql-identity --resource-group mi-sql-rg --query id --output tsv)
 
-az webapp identity assign --resource-group mi-sql-rg --name mi-sql-app --identities $principalId
+az webapp identity assign --resource-group mi-sql-rg --name $appservice --identities $principalId
 ```
 
 ### Add UID appsetting which contains clientId of created identity
@@ -164,14 +170,14 @@ az webapp identity assign --resource-group mi-sql-rg --name mi-sql-app --identit
 ```bash
 clientId=$(az identity show --name mi-sql-identity --resource-group mi-sql-rg --query id --output tsv)
 
-az webapp config appsettings set --resource-group mi-sql-rg --name mi-sql-app --settings UID=$clientId
+az webapp config appsettings set --resource-group mi-sql-rg --name $appservice --settings UID=$clientId
 ```
 
 Now we can test our connection as before.
 
 When we are using user-assign identity, the database connection string looks as follows:
 ```bash
-DRIVER={ODBC Driver 18 for SQL Server};SERVER=misqlserver.database.windows.net,1433;DATABASE=misqldb;UID=<clientId>;Authentication=ActiveDirectoryMSI
+DRIVER={ODBC Driver 18 for SQL Server};SERVER=$sqlserver.database.windows.net,1433;DATABASE=misqldb;UID=<clientId>;Authentication=ActiveDirectoryMSI
 ```
 
 ### Delete a resource group to clean up our environment
@@ -211,6 +217,7 @@ az ad group member add --group $groupId --member-id $principalId
 ### Create SQL server, database and firewall rule
 <script src="https://gist.github.com/adamkielar/6614dc77cd75021984ed51fd9b061cf2.js"></script>
 
+When we run below command we have to provide two parameters for this deployment, `sqlServerName`(we can get it from output of last deployment) and `groupId`(check description in sql.bicep).
 ```bash
 az deployment group create --name misql-003 --resource-group mi-sql-rg -f sql.bicep
 ```

@@ -24,7 +24,7 @@ We need to create the following resources to show how to set up a connection bet
 * SQL database
 
 Then we will deploy FastAPI application to test a connection.
-We will use Azure CLI and Azure Bicep to provision resources.
+We will use [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/) and [Azure Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/) to provision resources.
 
 ## Create resources using Azure CLI.
 ### Resource Group
@@ -53,7 +53,7 @@ az webapp create \
 az webapp identity assign --resource-group mi-sql-rg --name mi-sql-app
 ```
 
-### Create a group in AAD that will have access to the SQL server
+### AAD group with access to the SQL server
 ```bash
 az ad group create --display-name MISQLADMINS --mail-nickname MISQLADMINS
 ```
@@ -65,7 +65,7 @@ groupId=$(az ad group show --group MISQLADMINS --query id --output tsv)
 az ad group member add --group $groupId --member-id $principalId
 ```
 
-### Create SQL server with AD admin
+### SQL server with AD admin
 ```bash
 az sql server create \
 --enable-ad-only-auth 
@@ -76,7 +76,7 @@ az sql server create \
 --name misqlserver
 ```
 
-### Create database
+### SQL database
 ```bash
 az sql db create \
 --name misqldb \
@@ -97,7 +97,7 @@ az sql server firewall-rule create \
 --end-ip-address 0.0.0.0
 ```
 
-### We have to add the necessary app settings like database name, SQL server name and website port
+### Add the necessary app settings like database name, SQL server name and website port
 ```bash
 az webapp config appsettings set \
 --resource-group mi-sql-rg \
@@ -105,7 +105,7 @@ az webapp config appsettings set \
 --settings DATABASE=misqldb DBSERVER=misqlserver.database.windows.net IDENTITY=system WEBSITES_PORT=8000
 ```
 
-### Now finally we can test our connection:
+### Test connection:
 ```bash
 curl https://mi-sql-app.azurewebsites.net/api/mssql_db
 ```
@@ -121,7 +121,7 @@ When we are using system-assign identity, the database connection string looks a
 DRIVER={ODBC Driver 18 for SQL Server};SERVER=misqlserver.database.windows.net,1433;DATABASE=misqldb;Authentication=ActiveDirectoryMSI
 ```
 
-### Let's delete the App service and recreate it with a user-assigned identity
+### Delete the App service and recreate it with a user-assigned identity
 ```bash
 az webapp delete --name mi-sql-app --resource-group mi-sql-rg
 
@@ -144,7 +144,7 @@ az webapp config appsettings set \
 az identity create --name mi-sql-identity --resource-group mi-sql-rg
 ```
 
-### Add managed identity to just MISQLADMINS Azure Active Directory group
+### Add managed identity to MISQLADMINS Azure Active Directory group
 ```bash
 principalId=$(az identity show --name mi-sql-identity --resource-group mi-sql-rg --query principalId --output tsv)
 groupId=$(az ad group show --group MISQLADMINS --query id --output tsv)
@@ -159,7 +159,7 @@ principalId=$(az identity show --name mi-sql-identity --resource-group mi-sql-rg
 az webapp identity assign --resource-group mi-sql-rg --name mi-sql-app --identities $principalId
 ```
 
-### As the last step, we need to add UID appsetting which contains clientId of created identity
+### Add UID appsetting which contains clientId of created identity
 
 ```bash
 clientId=$(az identity show --name mi-sql-identity --resource-group mi-sql-rg --query id --output tsv)
@@ -174,7 +174,7 @@ When we are using user-assign identity, the database connection string looks as 
 DRIVER={ODBC Driver 18 for SQL Server};SERVER=misqlserver.database.windows.net,1433;DATABASE=misqldb;UID=<clientId>;Authentication=ActiveDirectoryMSI
 ```
 
-### Let's delete a resource group to clean up our environment
+### Delete a resource group to clean up our environment
 ```bash
 az group delete --resource-group mi-sql-rg
 ```
@@ -215,13 +215,13 @@ az ad group member add --group $groupId --member-id $principalId
 az deployment group create --name misql-003 --resource-group mi-sql-rg -f sql.bicep
 ```
 
-### We can confirm in Azure portal if resources are created
+### Confirm in Azure portal if resources are created
 
 ![Azure portal](/assets/post1/mi-sql-rg.png)
 
 Now we can curl the App Service endpoint and confirm the database connection.
 
-### Finally, we can delete a resource group
+### Delete a resource group
 ```bash
 az group delete --resource-group mi-sql-rg
 ```

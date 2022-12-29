@@ -74,7 +74,7 @@ az ad group member add --group $groupId --member-id $principalId
 ### SQL server with AD admin
 ```bash
 az sql server create \
---enable-ad-only-auth 
+--enable-ad-only-auth \
 --external-admin-principal-type Group \
 --external-admin-name MISQLADMINS \
 --external-admin-sid $groupId \
@@ -112,6 +112,7 @@ az webapp config appsettings set \
 ```
 
 ### Test connection:
+App Service might need a moment to start up and process request.
 ```bash
 curl https://$appservice.azurewebsites.net/api/mssql_db
 ```
@@ -168,7 +169,7 @@ az webapp identity assign --resource-group mi-sql-rg --name $appservice --identi
 ### Add UID appsetting which contains clientId of created identity
 
 ```bash
-clientId=$(az identity show --name mi-sql-identity --resource-group mi-sql-rg --query id --output tsv)
+clientId=$(az identity show --name mi-sql-identity --resource-group mi-sql-rg --query clientId --output tsv)
 
 az webapp config appsettings set --resource-group mi-sql-rg --name $appservice --settings UID=$clientId
 ```

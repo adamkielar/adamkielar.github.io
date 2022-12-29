@@ -24,7 +24,7 @@ We need to create the following resources to show how to set up a connection bet
 * SQL database
 
 Then we will deploy FastAPI application to test a connection.
-We will use [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/) and [Azure Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/) to provision resources.
+We will use [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/), [Azure Cloud Shell](https://learn.microsoft.com/en-us/azure/cloud-shell/overview) and [Azure Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/) to provision resources.
 
 ## Create resources using Azure CLI.
 ### Resource Group
@@ -38,6 +38,8 @@ az appservice plan create --name misqlplan --resource-group mi-sql-rg --is-linux
 ```
 
 ### App Service using system-assigned managed identity
+System-assigned service principal is not supported as a SQL database user.
+For purpose of this scenario we will add it as an admin but please remember that it is not a best practice.
 
 We need to setup random App Service and SQL Server name to avoid errors while provisioning resources.
 ```bash
@@ -129,6 +131,8 @@ DRIVER={ODBC Driver 18 for SQL Server};SERVER=$sqlserver.database.windows.net,14
 ```
 
 ### Delete the App service and recreate it with a user-assigned identity
+In that scenario we can add service principal as a database user and grant him read and write permissions.
+
 ```bash
 az webapp delete --name $appservice --resource-group mi-sql-rg
 
@@ -151,13 +155,6 @@ az webapp config appsettings set \
 az identity create --name mi-sql-identity --resource-group mi-sql-rg
 ```
 
-### Add managed identity to MISQLADMINS Azure Active Directory group
-```bash
-principalId=$(az identity show --name mi-sql-identity --resource-group mi-sql-rg --query principalId --output tsv)
-groupId=$(az ad group show --group MISQLADMINS --query id --output tsv)
-az ad group member add --group $groupId --member-id $principalId
-```
-
 ### Assign user-assigned managed identity to the App service 
 We need a fully qualified resource Id of identity
 ``` bash
@@ -172,6 +169,38 @@ az webapp identity assign --resource-group mi-sql-rg --name $appservice --identi
 clientId=$(az identity show --name mi-sql-identity --resource-group mi-sql-rg --query clientId --output tsv)
 
 az webapp config appsettings set --resource-group mi-sql-rg --name $appservice --settings UID=$clientId
+```
+
+### Add user to MISQLADMINS group
+This user will have admin rights. Check [documentation](https://learn.microsoft.com/en-us/cli/azure/ad/user?view=azure-cli-latest) for possible options. You can add your current user. `User id` will be your email address.
+```bash
+userId=$(az ad user show --id <user id> --query id -o tsv)
+```
+```bash
+groupId=$(az ad group show --group MISQLADMINS --query id --output tsv)
+az ad group member add --group $groupId --member-id $userId
+```
+
+### Add AAD-base database user with read and write permissions.
+Open Azure Cloud Shell and get access token
+```powershell
+$token = (Get-AzAccessToken -ResourceUrl https://database.windows.net).Token
+```
+
+Connect to database and create user
+```powershell
+Invoke-SqlCmd -ServerInstance "$sqlserver" `
+-Database "misqldb" `
+-AccessToken "$token" `
+-Query "CREATE USER [mi-sql-identity] FROM EXTERNAL PROVIDER;"
+```
+
+Add read and write permissions to our user
+```powershell
+Invoke-SqlCmd -ServerInstance "$sqlserver" `
+-Database "misqldb" `
+-AccessToken "$token" `
+-Query "ALTER ROLE db_datareader ADD MEMBER [mi-sql-identity]; ALTER ROLE db_datawriter ADD MEMBER [mi-sql-identity]"
 ```
 
 Now we can test our connection as before.
@@ -203,17 +232,7 @@ az deployment sub create --location eastus --name misql-001 -f resource-group.bi
 az deployment group create --name misql-002 --resource-group mi-sql-rg -f appservice.bicep
 ```
 
-Azure Bicep as of the time of writing does not support CRUD operations on MS Graph resources. We can bypass that problem using the deployment script but we will skip that step in this post and we will create AAD group and add identity to that group, using Azure CLI as before.
-
-```bash
-az ad group create --display-name MISQLADMINS --mail-nickname MISQLADMINS
-
-principalId=$(az identity show --name mi-sql-identity --resource-group mi-sql-rg --query principalId --output tsv)
-
-groupId=$(az ad group show --group MISQLADMINS --query id --output tsv)
-
-az ad group member add --group $groupId --member-id $principalId
-```
+Azure Bicep as of the time of writing does not support CRUD operations on MS Graph resources. We can bypass that problem using the deployment script but we will skip that step in this post and we will create AAD group and add user (for example user that we use for logging to Azure account) to that group, using Azure CLI as before. We can also create database user using Azure Cloud Shell as before.
 
 ### Create SQL server, database and firewall rule
 <script src="https://gist.github.com/adamkielar/6614dc77cd75021984ed51fd9b061cf2.js"></script>

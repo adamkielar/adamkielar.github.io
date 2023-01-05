@@ -331,7 +331,7 @@ Create a `pod.yaml` file.
 apiVersion: v1
 kind: Pod
 metadata:
-  name: workflow-demo-pod
+  name: workload-demo-pod
   namespace: default
   labels:
     azure.workload.identity/use: "true"
@@ -339,7 +339,7 @@ spec:
   serviceAccountName: workload-sa
   containers:
     - image: docker.io/adamkielar/workload-identity-demo:v1.0.0
-      name: workflow-demo-container
+      name: workload-demo-container
       envFrom:
       - secretRef:
           name: workload-demo-secrets

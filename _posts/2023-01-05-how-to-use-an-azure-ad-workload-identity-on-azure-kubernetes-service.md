@@ -26,8 +26,9 @@ Our application will perform the following tasks:
 ![Infra diagram](/assets/post3/app-diagram-1.png)
 
 ## Prerequisits
-We need to Register the `EnableWorkloadIdentityPreview` feature flag.
+1. We need to Register the `EnableWorkloadIdentityPreview` feature flag.
 Follow [documentation](https://learn.microsoft.com/en-us/azure/aks/learn/tutorial-kubernetes-workload-identity#register-the-enableworkloadidentitypreview-feature-flag){:target="_blank"} to enable it.
+2. [Kubernetes CLI](https://kubernetes.io/docs/tasks/tools/#kubectl)
 
 ## Create resources
 
@@ -156,7 +157,10 @@ az keyvault set-policy --name $kvName \
 
 ```bash
 storageId=$(az storage account show --name $storageName --resource-group $resourceGroup --query id -o tsv)
-az role assignment create --assignee $clientId --role 'Storage Blob Data Contributor' --scope $storageId
+az role assignment create \
+--assignee $clientId \
+--role 'Storage Blob Data Contributor' \
+--scope $storageId
 ```
 
 ### Create Kubernetes service account
@@ -202,6 +206,106 @@ We will use the following docker image:
 Let's look at the most important parts of code
 
 ```python
+# Imports
+import json
+import logging
+import os
+import secrets
+from dataclasses import dataclass
+
+from aiohttp import ClientSession
+from azure.keyvault.secrets.aio import SecretClient
+from azure.keyvault.secrets._models import KeyVaultSecret
+from azure.identity.aio import DefaultAzureCredential
+from azure.storage.blob.aio import BlobServiceClient
+from fastapi import APIRouter
+from fastapi import status
+from pydantic import BaseModel
+
+# FastApi router
+router = APIRouter()
+
+
+# Pydantic model
+class Question(BaseModel):
+    prompt: str
+
+
+# Retrieve secret `CHATGPT-API-KEY` from Key Vault
+@dataclass
+class KvSecretHandler:
+    kv_url: str = os.getenv("KV-URL", "")
+    secret_name: str = "CHATGPT-API-KEY"
+
+    async def get_secret(self) -> KeyVaultSecret:
+        default_credential = DefaultAzureCredential()
+        kv_client = SecretClient(
+            vault_url=self.kv_url,
+            credential=default_credential
+            )
+
+        async with kv_client:
+            async with default_credential:
+                return await kv_client.get_secret(self.secret_name)
+
+
+# Save response from ChatGPT to txt file 
+# and upload it to `chatgpt` container in Storage Account.
+@dataclass
+class StorageBlobHandler:
+    account_url = f"https://{os.getenv('ACCOUNT-NAME', '')}.blob.core.windows.net"
+
+    async def upload_blob(self, blob_answer: bytes) -> None:
+        file_name = secrets.token_urlsafe(5)
+        default_credential = DefaultAzureCredential()
+        blob_service_client = BlobServiceClient(
+            account_url=self.account_url,
+            credential=default_credential
+            )
+
+        async with blob_service_client:
+            async with default_credential:
+                container_client = blob_service_client.get_container_client(
+                    container="chatgpt"
+                    )
+
+                blob_client = container_client.get_blob_client(
+                    blob=f"{file_name}.txt"
+                    )
+
+                await blob_client.upload_blob(data=blob_answer)
+
+
+# Call OpenAI API with question and return response
+@dataclass
+class ChatGptApiCallHandler:
+    async def process_question(self, chatgpt_key: str, prompt: str) -> bytes:
+        headers = {
+            "Authorization": f"Bearer {chatgpt_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": "text-davinci-003",
+            "prompt": prompt,
+            "max_tokens": 100,
+            "temperature": 0
+        }
+        async with ClientSession(headers=headers) as session:
+            async with session.post(
+                url="https://api.openai.com/v1/completions",
+                data=json.dumps(payload)
+            ) as response:
+                return await response.read()
+
+
+# Application endpoint to POST question, http://localhost:8000/api/chatgpt
+@router.post("/chatgpt", status_code=status.HTTP_201_CREATED)
+async def send_question(question: Question) -> None:
+    chatgpt_key = await KvSecretHandler().get_secret()
+    chatgpt_response = await ChatGptApiCallHandler().process_question(
+        chatgpt_key.value,question.prompt
+        )
+    await StorageBlobHandler().upload_blob(chatgpt_response)
 
 ```
 
@@ -214,7 +318,9 @@ kvUrl=$(az keyvault show --name $kvName --resource-group $resourceGroup --query 
 ### Create Kubernetes secret
 
 ```bash
-kubectl -n default create secret generic workload-demo-secrets --from-literal=KV-URL=$kvUrl --from-literal=ACCOUNT-NAME=$storageName
+kubectl -n default create secret generic workload-demo-secrets \
+--from-literal=KV-URL=$kvUrl \
+--from-literal=ACCOUNT-NAME=$storageName
 ```
 
 ### Create Kubernetes pod
@@ -264,7 +370,9 @@ kubectl port-forward workload-demo-pod 8000:8000
 Curl endpoint.
 
 ```bash
-curl -X POST http://localhost:8000/api/chatgpt -H 'Content-Type: application/json' -d '{"prompt": "Azure workload identity"}'
+curl -X POST http://localhost:8000/api/chatgpt \
+-H 'Content-Type: application/json' \
+-d '{"prompt": "Azure workload identity"}'
 ```
 
 Check pod logs.

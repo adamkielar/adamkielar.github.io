@@ -133,11 +133,11 @@ az storage account create --name $storageName \
 
 ```bash
 az storage container create \
---account-name  $storageName \ 
+--account-name  $storageName \
 --name "chatgpt"
 ```
 
-### Create a user-assigned managed identity for workflow identity
+### Create a user-assigned managed identity for workload identity
 
 ```bash
 az identity create --name $workloadIdentity --resource-group $resourceGroup
@@ -179,7 +179,7 @@ metadata:
   namespace: default
 ```
 
-Apply file.
+<ins>Apply file.</ins>
 
 ```bash
 kubectl apply -f sa.yaml
@@ -325,7 +325,7 @@ kubectl -n default create secret generic workload-demo-secrets \
 
 ### Create Kubernetes pod
 
-Create a `pod.yaml` file.
+<ins>Create a `pod.yaml` file.</ins>
 
 ```yaml
 apiVersion: v1
@@ -347,13 +347,13 @@ spec:
     kubernetes.io/os: linux
 ```
 
-Apply file
+<ins>Apply file</ins>
 
 ```bash
 kubectl apply -f pod.yaml
 ```
 
-Confirm that pod is running
+<ins>Confirm that pod is running.</ins>
 
 ```bash
 kubectl describe pod workload-demo-pod
@@ -361,13 +361,13 @@ kubectl describe pod workload-demo-pod
 
 ### Test an application
 
-Forward ports
+<ins>Forward port.</ins>
 
 ```bash
 kubectl port-forward workload-demo-pod 8000:8000
 ```
 
-Curl endpoint.
+<ins>Curl endpoint.</ins>
 
 ```bash
 curl -X POST http://localhost:8000/api/chatgpt \
@@ -375,13 +375,21 @@ curl -X POST http://localhost:8000/api/chatgpt \
 -d '{"prompt": "Azure workload identity"}'
 ```
 
-Check pod logs.
+<ins>Check pod logs.</ins>
 
 ```bash
 kubectl logs --tail=20 workload-demo-pod
 ```
 
-Check Storage Account.
-<image>
+<ins>Check Storage Account.</ins>
+
+![Storage check](/assets/post3/storage-check.png)
+
+<ins>Delete a resource group and AAD group.</ins>
+
+```bash
+az group delete --resource-group $resourceGroup
+az ad group delete --group $groupId
+```
 
 ## Video walkthrough

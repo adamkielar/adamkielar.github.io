@@ -4,6 +4,8 @@ title: "Run self-hosted CI/CD agents on Azure Kubernetes Service - Part 1 - Circ
 tags: ["azure", "aks", "circleci", "kubernetes"]
 ---
 
+![Diagram](/assets/post4/circle-runner-diagram.png)
+
 **We use self-hosted CI/CD when we want to run and manage our own continuous integration and delivery (CI/CD) pipeline, rather than using a cloud-based service like CircleCI, Jenkins, Azure DevOps, or GitHub Actions. One way to do this is to host the agents on a Kubernetes cluster, which can provide scalability and resource isolation for your build processes. By self-hosting our CI/CD agents on Kubernetes, we have greater control over the infrastructure and can customize the build process to fit our specific needs. However, it also requires more setup and maintenance effort on our part.**
 
 ## Overview

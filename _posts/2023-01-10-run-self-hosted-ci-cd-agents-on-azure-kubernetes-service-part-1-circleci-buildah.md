@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Run self-hosted CI/CD agents on Azure Kubernetes Service - Part 1 - CircleCI"
+title: "Run self-hosted CI/CD agents on Azure Kubernetes Service - Part 1 - CircleCI + Buildah"
 tags: ["azure", "aks", "circleci", "kubernetes"]
 ---
 
@@ -229,9 +229,9 @@ spec:
     readOnly: false
     volumeHandle: aksstorage21695_circlecirunner # Format is storagename_containername
     volumeAttributes:
-      resourceGroup: circleci-runner-rg # Resource group
-      storageAccount: aksstorage21695 # Storage account name
-      containerName: circlecirunner # Storage account container name
+      resourceGroup: # Resource group
+      storageAccount: # Storage account name
+      containerName: # Storage account container name
       protocol: fuse
       AzureStorageAuthType: MSI
       AzureStorageIdentityObjectID: # az identity show --name $aksKubeletIdentity --resource-group $resourceGroup --query principalId -o tsv
@@ -336,9 +336,13 @@ workflows:
 
 <ins>Confirm that pod for circleci job is created.</ins>
 
+![Job pod 1](/assets/post4/pod1.png)
+
+![Job pod 2](/assets/post4/pod2.png)
+
 <ins>Confirm that CircleCI job is complete.</ins>
 
-
+![CircleCI runner](/assets/post4/circleci-runner-success.png)
 
 <ins>Confirm that image is in ACR.</ins>
 

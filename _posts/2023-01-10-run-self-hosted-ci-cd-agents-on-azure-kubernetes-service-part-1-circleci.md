@@ -15,7 +15,7 @@ We will:
 3. Create Storage Account, Persistent Volume and Persistent Volume Claim so we can mount storge as a volume
 3. Create CircleCI Agent and simple config
 
-## Prerequisites for CircleCI
+## Prerequisites
 
 * Kubernetes 1.12+
 * Helm 3.x
@@ -25,11 +25,13 @@ We will:
 
 ## Create an AKS cluster with workload identity
 
-Here are necessary commands to provision a basic setup. Let's run it.
+[I created script with necessary commands to provision a basic setup](https://github.com/adamkielar/circleci-runner/blob/main/ask.sh){:target="_blank"}. This is the same setup as in [last post](https://www.adamkielar.pl/posts/how-to-use-an-azure-ad-workload-identity-on-azure-kubernetes-service/){:target="_blank"}. Let's run it.
 ```bash
 chmod +x aks.sh
-./aks.sh 'add user id, for me, it is my email'
+./aks.sh 'add user id, for me, it is my email of AAD user'
 ```
+After running above script, if there were no errors, variables should be available in terminal.
+If you will have any problem running it, let me know and I will try to help. I use [zsh](https://www.zsh.org/){:target="_blank"} terminal.
 
 ## Create Azure Container Registry
 
@@ -175,7 +177,7 @@ kubectl -n circleci create secret generic circleci-token-secrets --from-literal=
 
 ### Update AKS cluster with kubelet identity
 
-According documentation "Mounting blobfuse requires account key, if nodeStageSecretRef field is not provided in PV config, azure file driver would try to get azure-storage-account-{accountname}-secret in the pod namespace first, if that secret does not exist, it would get account key by Azure storage account API directly using kubelet identity (make sure kubelet identity has reader access to the storage account)". So before we will mount our storage account lets update our cluster if we do not want to pass account key as secret. Update may take few minutes...
+According to documentation: "Mounting blobfuse requires account key, if nodeStageSecretRef field is not provided in PV config, azure file driver would try to get azure-storage-account-{accountname}-secret in the pod namespace first, if that secret does not exist, it would get account key by Azure storage account API directly using kubelet identity (make sure kubelet identity has reader access to the storage account)". So before we will mount our storage account lets update our cluster if we do not want to pass account key as secret. Update may take few minutes...
 
 ```bash
 aksKubeletIdentity="aks-kubelet-identity"
@@ -193,9 +195,9 @@ az aks update \
 ### Grant Reader access to the storage account for aksKubeletIdentity
 
 ```bash
-kubClientId=$(az identity show --name $aksKubeletIdentity --resource-group $resourceGroup --query clientId -o tsv)
+kubObjectId=$(az identity show --name $aksKubeletIdentity --resource-group $resourceGroup --query principalId -o tsv)
 az role assignment create \
---assignee $kubClientId \
+--assignee $kubObjectId \
 --role 'Reader' \
 --scope $storageId
 ```
@@ -332,8 +334,15 @@ workflows:
 
 ### Push our changes to the repository and check the job result.
 
-Confirm that pod for circleci job is created.
+<ins>Confirm that pod for circleci job is created.</ins>
 
+<ins>Confirm that CircleCI job is complete.</ins>
+
+
+
+<ins>Confirm that image is in ACR.</ins>
+
+![ACR image](/assets/post4/acr-image.png)
 
 <blockquote class="prompt-info">
 According to circleci documentation we can add `runAsNonRoot: true

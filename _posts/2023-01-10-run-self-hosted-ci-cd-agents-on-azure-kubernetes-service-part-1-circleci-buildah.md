@@ -6,7 +6,7 @@ tags: ["azure", "aks", "circleci", "kubernetes"]
 
 ![Diagram](/assets/post4/circle-runner-diagram.png)
 
-**We use self-hosted CI/CD when we want to run and manage our own continuous integration and delivery (CI/CD) pipeline, rather than using a cloud-based service like CircleCI, Jenkins, Azure DevOps, or GitHub Actions. One way to do this is to host the agents on a Kubernetes cluster, which can provide scalability and resource isolation for your build processes. By self-hosting our CI/CD agents on Kubernetes, we have greater control over the infrastructure and can customize the build process to fit our specific needs. However, it also requires more setup and maintenance effort on our part.**
+**We use self-hosted CI/CD when we want to run and manage our own continuous integration and delivery (CI/CD) pipeline, rather than using a cloud-based service like CircleCI, Azure DevOps, or GitHub Actions. One way to do this is to host the agents on a Kubernetes cluster, which can provide scalability and resource isolation for your build processes. By self-hosting our CI/CD agents on Kubernetes, we have greater control over the infrastructure and can customize the build process to fit our specific needs. However, it also requires more setup and maintenance effort on our part.**
 
 ## Overview
 
@@ -28,12 +28,26 @@ We will:
 ## Create an AKS cluster with workload identity
 
 [I created script with necessary commands to provision a basic setup](https://github.com/adamkielar/circleci-runner/blob/main/ask.sh){:target="_blank"}. This is the same setup as in [last post](https://www.adamkielar.pl/posts/how-to-use-an-azure-ad-workload-identity-on-azure-kubernetes-service/){:target="_blank"}. Let's run it.
+
 ```bash
 chmod +x aks.sh
 ./aks.sh 'add user id, for me, it is my email of AAD user'
 ```
+
 After running above script, if there were no errors, variables should be available in terminal.
 If you will have any problem running it, let me know and I will try to help. I use [zsh](https://www.zsh.org/){:target="_blank"} terminal.
+
+1. Create a user-assigned managed identity for workload identity
+```bash
+clientId=$(az identity create --name $workloadIdentity --resource-group $resourceGroup --query clientId -o tsv)
+```
+
+2. Grant permission to access the secret in Key Vault
+```bash
+az keyvault set-policy --name $kvName \
+--secret-permissions get \
+--spn $clientId
+```
 
 ## Create Azure Container Registry
 
@@ -177,67 +191,13 @@ az identity federated-credential create \
 kubectl -n circleci create secret generic circleci-token-secrets --from-literal=circleci-runner.resourceClass='ADD TOKEN'
 ```
 
-### Update AKS cluster with kubelet identity
+### Create Persistent Volume Claim
 
-According to documentation: "Mounting blobfuse requires account key, if nodeStageSecretRef field is not provided in PV config, azure file driver would try to get azure-storage-account-{accountname}-secret in the pod namespace first, if that secret does not exist, it would get account key by Azure storage account API directly using kubelet identity (make sure kubelet identity has reader access to the storage account)". So before we will mount our storage account lets update our cluster if we do not want to pass account key as secret. Update may take few minutes...
+We will use storage class that is already created in AKS: `azurefile-csi`.
 
-```bash
-aksKubeletIdentity="aks-kubelet-identity"
-aksClientId=$(az identity show --name $aksIdentity --resource-group $resourceGroup --query clientId -o tsv)
-kubId=$(az identity create --name $aksKubeletIdentity --resource-group $resourceGroup --query id --output tsv)
-az role assignment create --assignee $aksClientId --role 'Managed Identity Operator' --scope $kubId
-az aks update \
---resource-group $resourceGroup \
---name $aksName \
---enable-managed-identity \
---assign-identity $appId \
---assign-kubelet-identity $kubId
-```
-
-### Grant Reader access to the storage account for aksKubeletIdentity
-
-```bash
-kubObjectId=$(az identity show --name $aksKubeletIdentity --resource-group $resourceGroup --query principalId -o tsv)
-az role assignment create \
---assignee $kubObjectId \
---role 'Reader' \
---scope $storageId
-```
-
-### Create Persistent Volume and Persistent Volume Claim
-
-We will use it to mount Blob storage as a volume using Blobfuse in CircleCI runner.
-
-<ins>Create file sa.yaml, add missing variable and apply.</ins>
+<ins>Create file pvc.yaml and apply.</ins>
 
 ```yaml
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-circleci
-  namespace: circleci
-spec:
-  capacity:
-    storage: 10Gi
-  accessModes:
-    - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: azureblob-fuse-premium
-  mountOptions:
-    - -o allow_other
-    - --file-cache-timeout-in-seconds=120
-  csi:
-    driver: blob.csi.azure.com
-    readOnly: false
-    volumeHandle: aksstorage21695_circlecirunner # Format is storagename_containername
-    volumeAttributes:
-      resourceGroup: # Resource group
-      storageAccount: # Storage account name
-      containerName: # Storage account container name
-      protocol: fuse
-      AzureStorageAuthType: MSI
-      AzureStorageIdentityObjectID: # az identity show --name $aksKubeletIdentity --resource-group $resourceGroup --query principalId -o tsv
----
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -250,18 +210,18 @@ spec:
     requests:
       storage: 10Gi
   volumeName: pv-circleci
-  storageClassName: azureblob-fuse-premium
+  storageClassName: azurefile-csi
 ```
 
 ```bash
-kubectl apply -f pv.yaml
+kubectl apply -f pvc.yaml
 ```
 
 ### Create CircleCI agent
 
 Install `fuse-overlay` program according to [documentation](https://circleci.com/docs/container-runner/#using-the-buildah-image){:target="_blank"}.
 
-We will create custom vaule.yaml file.
+We will create custom values.yaml file.
 
 ```yaml
 agent:

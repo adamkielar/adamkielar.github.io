@@ -14,7 +14,7 @@ We will:
 
 1. Create AKS cluster with workload identity enabled. We touched on that topic in [this post](https://www.adamkielar.pl/posts/how-to-use-an-azure-ad-workload-identity-on-azure-kubernetes-service/){:target="_blank"} so please take the time to read it if you are not familiar with this setup.
 2. Create Azure Container Registry to store our images
-3. Create Storage Account, Persistent Volume and Persistent Volume Claim so we can mount storge as a volume
+3. Create Persistent Volume Claim
 3. Create CircleCI Agent and simple config
 
 ## Prerequisites

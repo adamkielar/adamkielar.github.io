@@ -209,7 +209,6 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  volumeName: pv-circleci
   storageClassName: azurefile-csi
 ```
 
@@ -322,12 +321,12 @@ Error: mount /var/lib/containers/storage/overlay:/var/lib/containers/storage/ove
 
 Here are great articles from RedHat for further reading:
 
-* https://www.redhat.com/sysadmin/building-buildah
-* https://www.redhat.com/sysadmin/podman-inside-kubernetes
+* [https://www.redhat.com/sysadmin/building-buildah](https://www.redhat.com/sysadmin/building-buildah){:target="_blank"}
+* [https://www.redhat.com/sysadmin/podman-inside-kubernetes](https://www.redhat.com/sysadmin/podman-inside-kubernetes){:target="_blank"}
 
 ## Conclusion
 I would like to have more control over pod which is created by circleci-agent. This solution is not flexible enough for me yet and there are security concerns.
 
 ## Video walkthrough
 
-In progress..
+<iframe width="560" height="315" src="https://www.youtube.com/embed/qVTGgiRHFk4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>

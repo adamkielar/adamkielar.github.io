@@ -4,7 +4,7 @@ title: "Run self-hosted CI/CD agents on Azure Kubernetes Service - Part 2 - Jenk
 tags: ["azure", "aks", "jenkins", "kubernetes", "grafana", "promethes", "kaniko"]
 ---
 
-![Diagram]()
+![Diagram](/assets/post5/jenkins-diagram.png)
 
 **This post is a continuation of our journey with self-hosted CI/CD agents. I encourage you to check [part 1](https://www.adamkielar.pl/posts/run-self-hosted-ci-cd-agents-on-azure-kubernetes-service-part-1-circleci-buildah/){:target="_blank"} if you want to see a different approach to that topic. In this post we will focus on [Jenkins](https://www.jenkins.io/){:target="_blank"}. It took a bit of time to install Jenkins on AKS. I encountered a few errors along the way. I will share my solution here so it might be helpful to others.**
 
@@ -247,7 +247,7 @@ spec:
 kubectl apply -f jenkins-pvc.yaml
 ```
 5.Create custom docker image with Jenkins and install plugins.
-Due to problems, I encountered installing with default settings I had to create the following custom image. Customization of Jenkins is a complex task and each part needs a bit of tweaking.
+Due to problems, I encountered installing Jenkins with default settings I had to create custom image. Customization of Jenkins is a complex task and each part needs a bit of tweaking.
 [Link to custom image](https://hub.docker.com/repository/docker/adamkielar/jenkins-runner/general).
 
 ```Dockerfile
@@ -284,7 +284,7 @@ credentials:1214.v1de940103927
 [Here you can find a template for that file](https://github.com/jenkinsci/helm-charts/blob/main/charts/jenkins/values.yaml).
 
 <blockquote class="prompt-info">
-I will not post my values.yaml file here since it has 427 lines. <a href="https://github.com/adamkielar/jenkins-runner" target="_blank">You can check it here</a>.
+I will not post my values.yaml file here since it has 427 lines. <a href="https://github.com/adamkielar/jenkins-runner/blob/master/jenkins-values.yaml" target="_blank">You can check it here</a>.
 </blockquote>
 
 We will focus only on specific options:
@@ -337,7 +337,7 @@ Permission denied (publickey).
 fatal: Could not read from remote repository.
 ```
 
-### Set up connection with GitHub for private repository.
+### Set up connection with GitHub for private repository
 
 1. Generate SSH key and save it to a file.
 ```bash

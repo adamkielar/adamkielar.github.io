@@ -465,6 +465,10 @@ spec:
 6. Confirm that application pod is running
 ![App 1](/assets/post5/app-1.png)
 
+## Video walkthrough
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/RVeEQTr0Cqo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ## Known errors
 
 Besides git plugin error that I describe above, I had also problems with:
@@ -480,3 +484,4 @@ In container running Jenkins change find this lines in `/var/jenkins_home/config
 
 2. If you have problem installing Jenkins due to plugins errors, first install clean instance and then add plugins.
 3. If you have problems with mounting volumes to container, check if you mount volume with proper uid and gid set.
+

@@ -17,6 +17,10 @@ We will:
 3. Create Persistent Volume Claim
 3. Create CircleCI Agent and simple config
 
+## Video walkthrough
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/qVTGgiRHFk4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ## Prerequisites
 
 * Kubernetes 1.12+
@@ -326,7 +330,3 @@ Here are great articles from RedHat for further reading:
 
 ## Conclusion
 I would like to have more control over pod which is created by circleci-agent. This solution is not flexible enough for me yet and there are security concerns.
-
-## Video walkthrough
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/qVTGgiRHFk4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>

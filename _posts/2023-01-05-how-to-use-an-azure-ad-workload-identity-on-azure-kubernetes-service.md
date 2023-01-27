@@ -25,6 +25,10 @@ Our application will perform the following tasks:
 
 ![Infra diagram](/assets/post3/app-diagram-1.png)
 
+## Video walkthrough
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/vEqvEYEl8EM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ## Prerequisits
 1. We need to Register the `EnableWorkloadIdentityPreview` feature flag.
 Follow [documentation](https://learn.microsoft.com/en-us/azure/aks/learn/tutorial-kubernetes-workload-identity#register-the-enableworkloadidentitypreview-feature-flag){:target="_blank"} to enable it.
@@ -391,7 +395,3 @@ kubectl logs --tail=20 workload-demo-pod
 az group delete --resource-group $resourceGroup
 az ad group delete --group $groupId
 ```
-
-## Video walkthrough
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/vEqvEYEl8EM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>

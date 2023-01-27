@@ -26,6 +26,10 @@ We need to create the following resources to show how to set up a connection bet
 Then we will deploy FastAPI application to test a connection.
 We will use [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/), [Azure Cloud Shell](https://learn.microsoft.com/en-us/azure/cloud-shell/overview) and [Azure Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/) to provision resources.
 
+## Video walkthrough
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/L5eblUHIxSM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## Create resources using Azure CLI.
 ### Resource Group
 ```bash
@@ -252,7 +256,3 @@ Now we can curl the App Service endpoint and confirm the database connection.
 ```bash
 az group delete --resource-group mi-sql-rg
 ```
-
-## YouTube
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/L5eblUHIxSM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

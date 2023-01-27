@@ -18,6 +18,10 @@ tags: ["azure", "circleci", "openid"]
 When a CircleCI job starts, CircleCI signs an OpenID Connect token and makes it available to a job. 
 After that, job can present this token to Azure, which verifies its authenticity, grants a job temporary credentials, and permits it to take defined actions.
 
+## Video walkthrough
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/JAVlv661Plk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## Prerequisites
 
 * Access to Azure Subscription with Owner access level.
@@ -230,7 +234,3 @@ It takes time for the federated identity credential to be propagated throughout 
 If everything is set correctly our pipeline should finish the job with success.
 
 ![Success](/assets/post2/circleci-check.png)
-
-## Video presentation
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/JAVlv661Plk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

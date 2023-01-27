@@ -33,6 +33,10 @@ We will create and configure the following resources to show what Jenkins can of
 . I created a script with the necessary commands to provision a basic setup. In this setup, we will use our own kubelet managed identity. I want to show you other possibilities for how we can create a cluster and connect other resources. We will assign AcrPull role to that identity by adding --attach-acr to az aks create command.
 </blockquote>
 
+## Video walkthrough
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/RVeEQTr0Cqo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ## Create AKS cluster and ACR
 
 1. Run script:
@@ -464,10 +468,6 @@ spec:
 ![Jenkins 5](/assets/post5/jenkins-5.png)
 6. Confirm that application pod is running
 ![App 1](/assets/post5/app-1.png)
-
-## Video walkthrough
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/RVeEQTr0Cqo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 ## Known errors
 

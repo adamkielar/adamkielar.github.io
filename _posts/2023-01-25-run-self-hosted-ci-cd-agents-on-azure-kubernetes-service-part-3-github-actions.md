@@ -43,6 +43,9 @@ We will also check how to se up a runner with [actions runner controller](https:
 <a href="https://github.com/adamkielar/github-runner" target="_blank">Here is a link to GitHub repo with all files for reference</a>.
 </blockquote>
 
+## Video walkthrough
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/1tugWxg_1_0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 ## Create AKS cluster and ACR
 

@@ -13,8 +13,14 @@ tags: ["aws", "circleci", "openid"]
 
 ## Overview
 
+![Diagram](/assets/post7/diagram.png)
+
 <blockquote class="prompt-info">
 <a href="https://github.com/adamkielar/circleci-oidc-aws" target="_blank">Here is a link to GitHub repo with all files for reference</a>.
+</blockquote>
+
+<blockquote class="prompt-info">
+<a href="https://www.adamkielar.pl/posts/how-to-use-openid-connect-identity-tokens-to-authenticate-circleci-jobs-with-azure/" target="_blank">Here is a link to post about CircleCI and Azure</a>.
 </blockquote>
 
 ## Prerequisites
@@ -109,6 +115,7 @@ aws iam attach-role-policy --role-name circleci-oidc --policy-arn arn:aws:iam::a
 ## Create resources using Terraform
 
 1. Create `main.tf` file.
+
 ```hcl
 resource "aws_iam_openid_connect_provider" "this" {
   url             = format("https://%s", var.oidc_url)
@@ -208,6 +215,7 @@ variable "default_tags" {
 ## Run CircleCI job to test identity provider.
 
 1. Create `config.yml` in `.circleci` folder in your git repository.
+
 ```yaml
 version: 2.1
 

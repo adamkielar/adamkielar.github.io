@@ -1,13 +1,14 @@
 ---
 layout: post
-title: "How to use an Azure AD workload identity on Azure Kubernetes Service?"
+title: "How to use an Azure AD workload identity on Azure Kubernetes Service"
+description: "Learn how to secure your Azure Kubernetes Service (AKS) resources with Azure Active Directory (AD) Workload Identity. Get step-by-step instructions on setting up and using AKS Workload Identity to access Azure AD-secured resources."
 tags: ["azure", "aks", "fastapi", "workload identity"]
 ---
 
 **Applications that we deploy in AKS clusters require AAD application credentials or managed identity to access AAD-protected resources.
 Azure AD Workload Identity for Kubernetes integrates with the capabilities native to Kubernetes to federate with external identity providers.**
 
-![Workload diagrma](/assets/post3/workload-diagram-1.png)
+![Process how AKS workload identity get AAD token](/assets/post3/workload-diagram-1.png)
 
 ## Overview
 
@@ -23,7 +24,7 @@ Our application will perform the following tasks:
 * call [OpenAI](https://openai.com/api/) API
 * save response to blob in Azure Storage
 
-![Infra diagram](/assets/post3/app-diagram-1.png)
+![Application diagram that includes AKS, Key Vault, Azure Storage](/assets/post3/app-diagram-1.png)
 
 ## Video walkthrough
 
@@ -387,7 +388,7 @@ kubectl logs --tail=20 workload-demo-pod
 
 <ins>Check Storage Account.</ins>
 
-![Storage check](/assets/post3/storage-check.png)
+![Azure Storage overview in Azure portal](/assets/post3/storage-check.png)
 
 <ins>Delete a resource group and AAD group.</ins>
 

@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "How to connect to Azure SQL database using managed identity"
+description: "Discover how to securely connect to an Azure SQL database using a managed identity. A comprehensive guide on using Azure Active Directory authentication for your database connection."
 tags: ["azure", "mssql", "managed identity"]
 ---
 
@@ -17,7 +18,7 @@ tags: ["azure", "mssql", "managed identity"]
 If you want to learn more about managed identities please check the [documentation](https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview).
 
 ## Overview
-![Diagram](/assets/post1/post-1-diagram.png)
+![Securely connect to an Azure SQL database using a managed identity](/assets/post1/post-1-diagram.png)
 
 We need to create the following resources to show how to set up a connection between the application and the database:
 * App Service
@@ -248,7 +249,7 @@ az deployment group create --name misql-003 --resource-group mi-sql-rg -f sql.bi
 
 ### Confirm in Azure portal if resources are created
 
-![Azure portal](/assets/post1/mi-sql-rg.png)
+![Azure resource group overview in portal](/assets/post1/mi-sql-rg.png)
 
 Now we can curl the App Service endpoint and confirm the database connection.
 

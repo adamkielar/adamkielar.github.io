@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Run self-hosted CI/CD agents on Azure Kubernetes Service - Part 1 - CircleCI + Buildah"
+description: "In Part 1 of this series, discover how to run self-hosted CI/CD agents on Azure Kubernetes Service using CircleCI and Buildah. Learn how to set up and configure CircleCI and Buildah to build and deploy your applications on AKS with ease."
 tags: ["azure", "aks", "circleci", "kubernetes"]
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Run self-hosted CI/CD agents on Azure Kubernetes Service - Part 2 - Jenkins + Kaniko"
+description: "In Part 2 of this series, explore the benefits of running self-hosted CI/CD agents on Azure Kubernetes Service using Jenkins and Kaniko. Get step-by-step instructions on how to set up and configure Jenkins and Kaniko for building and deploying your applications on AKS."
 tags: ["azure", "aks", "jenkins", "kubernetes", "grafana", "promethes", "kaniko"]
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "How to use OpenID Connect identity tokens to authenticate CircleCI jobs with AWS"
+description: "Learn how to authenticate CircleCI jobs with AWS using OpenID Connect identity tokens. A step-by-step guide on setting up secure authorization for your CI/CD pipeline."
 tags: ["aws", "circleci", "openid"]
 ---
 
@@ -13,14 +14,14 @@ tags: ["aws", "circleci", "openid"]
 
 ## Overview
 
-![Diagram](/assets/post7/diagram.png)
+![Authenticate CircleCI jobs with AWS using OIDC identity tokens](/assets/post7/diagram.png)
 
 <blockquote class="prompt-info">
-<a href="https://github.com/adamkielar/circleci-oidc-aws" target="_blank">Here is a link to GitHub repo with all files for reference</a>.
+<a href="https://github.com/adamkielar/circleci-oidc-aws" target="_blank" rel="noopener noreferrer">Here is a link to GitHub repo with all files for reference</a>.
 </blockquote>
 
 <blockquote class="prompt-info">
-<a href="https://www.adamkielar.pl/posts/how-to-use-openid-connect-identity-tokens-to-authenticate-circleci-jobs-with-azure/" target="_blank">Here is a link to post about CircleCI and Azure</a>.
+<a href="https://www.adamkielar.pl/posts/how-to-use-openid-connect-identity-tokens-to-authenticate-circleci-jobs-with-azure/" target="_blank" rel="noopener noreferrer">Here is a link to post about CircleCI and Azure</a>.
 </blockquote>
 
 ## Prerequisites
@@ -78,7 +79,7 @@ openssl x509 -in certificate.crt -fingerprint -sha1 -noout
 aws iam create-open-id-connect-provider --cli-input-json file://circleci-provider.json
 ```
 
-![OIDC Provider](/assets/post7/provider.png)
+![Add OIDC Provider in AWS IAM](/assets/post7/provider.png)
 
 ### Create a role for OIDC
 1. Create a JSON file for IAM role.
@@ -253,14 +254,14 @@ workflows:
 2. Add environment variables in CircleCI
 * Add `AWS_ROLE_ARN`, value is in format `arn:aws:iam::${AWS_ACCOUNT_ID}:role/circleci-oidc`
 
-![CircleCI Secrets](/assets/post7/circleci-secret.png)
+![Add environment variables in CircleCI portal](/assets/post7/circleci-secret.png)
 
 3. Add context to CircleCI.
 
 In CircleCI jobs that use at least one context, the OpenID Connect ID token is available in the environment variable `$CIRCLE_OIDC_TOKEN`.
 
-![Context](/assets/post2/context.png)
+![Add context in CircleCI portal](/assets/post2/context.png)
 
 4. Push changes to git and check CircleCI
 
-![Success](/assets/post7/circleci-check.png)
+![CircleCI pipeline jobs output](/assets/post7/circleci-check.png)

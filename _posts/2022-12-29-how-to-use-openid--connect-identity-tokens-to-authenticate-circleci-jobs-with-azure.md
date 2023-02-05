@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "How to use OpenID Connect identity tokens to authenticate CircleCI jobs with Azure"
+description: "Learn how to authenticate CircleCI jobs with Azure using OpenID Connect identity tokens. A step-by-step guide on setting up secure authorization for your CI/CD pipeline."
 tags: ["azure", "circleci", "openid"]
 ---
 
@@ -13,7 +14,7 @@ tags: ["azure", "circleci", "openid"]
 
 ## Overview
 
-![circleci-oidc-diagram](/assets/post2/circleci-oidc-diagram.png)
+![Authenticate CircleCI jobs with Azure using OIDC identity tokens](/assets/post2/circleci-oidc-diagram.png)
 
 When a CircleCI job starts, CircleCI signs an OpenID Connect token and makes it available to a job. 
 After that, job can present this token to Azure, which verifies its authenticity, grants a job temporary credentials, and permits it to take defined actions.
@@ -49,7 +50,7 @@ az ad sp create --id $appId
 We have to make a POST request to MS Graph to add federated credentials. 
 Let's check Azure Portal what fields we have to provide to create credentials.
 
-![Azure Portal](/assets/post2/circleci-oidc.png)
+![Add federated identity credentials in Azure portal](/assets/post2/circleci-oidc.png)
 
 * In an Issuer field, we set: `"https://oidc.circleci.com/org/ORGANIZATION_ID"`
 * In a Subject identifier field, we set: `"org/ORGANIZATION_ID/project/PROJECT_ID/user/USER_ID"`
@@ -99,7 +100,7 @@ az rest --method POST --uri "https://graph.microsoft.com/beta/applications/$obje
 ```
 
 If we receive a response without errors we can check Azure Portal if a federated identity was created.
-![Azure Result](/assets/post2/circleci-identity.png)
+![Certificates and secrets in Azure AD application](/assets/post2/circleci-identity.png)
 
 ### Grant permissions for the service principal
 
@@ -220,17 +221,17 @@ workflows:
 * Add `AZURE_SP` (application id, echo $appId)
 * Add `AZURE_SP_TENANT` (az account show --query tenantId -o tsv)
 
-![CircleCI Secrets](/assets/post2/circleci-secrets.png)
+![Add environment variables in CircleCI portal](/assets/post2/circleci-secrets.png)
 
 ### Add context to CircleCI
 
 In CircleCI jobs that use at least one context, the OpenID Connect ID token is available in the environment variable `$CIRCLE_OIDC_TOKEN`.
 
-![Context](/assets/post2/context.png)
+![Add context in CircleCI portal](/assets/post2/context.png)
 
 ### Push changes to git and check CircleCI
 
 It takes time for the federated identity credential to be propagated throughout a region after being initially configured. A token request made several minutes after configuring the federated identity credential may fail because the cache is populated in the directory with old data. Due to that our job can fail with error AADSTS70021: No matching federated identity record found for presented assertion. We should double-check what we added in the Subject identifier field.
 If everything is set correctly our pipeline should finish the job with success.
 
-![Success](/assets/post2/circleci-check.png)
+![CircleCI pipeline jobs output](/assets/post2/circleci-check.png)

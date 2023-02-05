@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Run self-hosted CI/CD agents on Azure Kubernetes Service - Part 3 - GitHub Actions"
+description: "In Part 3 of this series, discover how to run self-hosted CI/CD agents on Azure Kubernetes Service using GitHub Actions. Learn how to set up and configure GitHub Actions for building and deploying your applications on AKS, and take advantage of the power of GitHub Actions for CI/CD automation."
 tags: ["azure", "aks", "github", "kubernetes"]
 ---
 
@@ -40,7 +41,7 @@ We will create and configure the following resources:
 We will also check how to se up a runner with [actions runner controller](https://github.com/actions/actions-runner-controller/blob/master/docs/quickstart.md){:target="_blank"}.
 
 <blockquote class="prompt-info">
-<a href="https://github.com/adamkielar/github-runner" target="_blank">Here is a link to GitHub repo with all files for reference</a>.
+<a href="https://github.com/adamkielar/github-runner" target="_blank" rel="noopener noreferrer">Here is a link to GitHub repo with all files for reference</a>.
 </blockquote>
 
 ## Video walkthrough

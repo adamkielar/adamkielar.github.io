@@ -1,13 +1,15 @@
 ---
 layout: post
 title: "Run self-hosted CI/CD agents on Azure Kubernetes Service - Part 4 - Azure DevOps"
-description: "In Part 3 of this series, discover how to run self-hosted CI/CD agents on Azure Kubernetes Service using GitHub Actions. Learn how to set up and configure GitHub Actions for building and deploying your applications on AKS, and take advantage of the power of GitHub Actions for CI/CD automation."
+description: "Learn how to run self-hosted CI/CD agents on Azure Kubernetes Service with Azure DevOps in this comprehensive guide. Part 4 covers how to set up and configure agents in Azure DevOps for use in AKS. Improve your development process with this powerful tool!"
 tags: ["azure", "aks", "azure devops", "kubernetes"]
 ---
 
-<img src="/assets/post6/github-diagram.png" width="300">
+<img src="/assets/post8/azure-devops-runner.png" width="300">
 
-**This post is a continuation of our journey with self-hosted CI/CD agents. I encourage you to check [part 1](https://www.adamkielar.pl/posts/run-self-hosted-ci-cd-agents-on-azure-kubernetes-service-part-1-circleci-buildah/){:target="_blank"}, [part 2](https://www.adamkielar.pl/posts/run-self-hosted-ci-cd-agents-on-azure-kubernetes-service-part-2-jenkins-kaniko/){:target="_blank"} and [part 3](https://www.adamkielar.pl/posts/run-self-hosted-ci-cd-agents-on-azure-kubernetes-service-part-3-github-actions/){:target="_blank"} if you want to see a different approach to that topic. In this post, we will focus on [Azure DevOps](https://learn.microsoft.com/en-us/azure/devops/user-guide/what-is-azure-devops?view=azure-devops){:target="_blank"}.**
+**Are you looking for a way to run your [Azure DevOps](https://learn.microsoft.com/en-us/azure/devops/user-guide/what-is-azure-devops?view=azure-devops){:target="_blank"} builds and deployments on your own infrastructure? If so, you'll want to check out Azure DevOps self-hosted runners. Self-hosted runners are agents that allow you to run your build and deployment jobs on machines that you control, giving you more flexibility and control over your environment. In this blog post, we'll take a closer look at what Azure DevOps self-hosted runners are, why you might want to use them, and how to set them up for your projects. Whether you're looking to save costs, ensure security and isolation, or build on specialized hardware or software configurations, self-hosted runners can help you improve your Azure DevOps workflow.**
+
+**This post is a continuation of our journey with self-hosted CI/CD agents. I encourage you to check [part 1](https://www.adamkielar.pl/posts/run-self-hosted-ci-cd-agents-on-azure-kubernetes-service-part-1-circleci-buildah/){:target="_blank"}, [part 2](https://www.adamkielar.pl/posts/run-self-hosted-ci-cd-agents-on-azure-kubernetes-service-part-2-jenkins-kaniko/){:target="_blank"} and [part 3](https://www.adamkielar.pl/posts/run-self-hosted-ci-cd-agents-on-azure-kubernetes-service-part-3-github-actions/){:target="_blank"} if you want to see a different approach to that topic.**
 
 ## Overview
 

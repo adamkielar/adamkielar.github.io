@@ -25,6 +25,10 @@ We will create and configure the following resources:
 <a href="https://github.com/adamkielar/azure-devops-on-aks" target="_blank" rel="noopener noreferrer">Here is a link to GitHub repo with all files for reference</a>.
 </blockquote>
 
+## Video walkthrough
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/2laCzIoDGEA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ## Create AKS cluster and ACR
 
 1. Run script.
